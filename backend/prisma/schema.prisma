@@ -1,0 +1,148 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  users       User[]
+  services    Service[]
+  incidents   Incident[]
+  teams       Team[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // "admin" or "user"
+  
+  // Organization relationship
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  
+  // Permissions
+  canManageServices  Boolean @default(false)
+  canManageIncidents Boolean @default(false)
+  canManageUsers     Boolean @default(false)
+  isOrgAdmin         Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  incidents       Incident[]
+  incidentUpdates IncidentUpdate[]
+  teamMembers     TeamMember[]
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  status      String   @default("Operational") // "Operational", "Degraded Performance", "Partial Outage", "Major Outage"
+  
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  incidents   IncidentService[]
+  
+  @@unique([name, organizationId])
+}
+
+model Incident {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  status      String   @default("Active") // "Active", "Resolved"
+  severity    String   @default("medium") // "minor", "medium", "major"
+  startedAt   DateTime @default(now())
+  resolvedAt  DateTime?
+  
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  affectedServices IncidentService[]
+  updates         IncidentUpdate[]
+}
+
+// Junction table for many-to-many relationship between Incidents and Services
+model IncidentService {
+  id         String   @id @default(uuid())
+  incidentId String
+  serviceId  String
+  
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  @@unique([incidentId, serviceId])
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  members     TeamMember[]
+  
+  @@unique([name, organizationId])
+}
+
+model TeamMember {
+  id     String @id @default(uuid())
+  
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role   String @default("member") // "admin" or "member"
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([teamId, userId])
+}
+
+model IncidentUpdate {
+  id          String   @id @default(uuid())
+  message     String
+  status      String   // "investigating", "identified", "monitoring", "resolved"
+  
+  incidentId  String
+  incident    Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+

@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: status-page-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - JWT_SECRET=supersecretkey
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      - ./backend/dev.db:/app/dev.db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: status-page-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: status-page-network
+

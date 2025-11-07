@@ -1,0 +1,6 @@
+# Ignore Docker files for Render deployment
+# Use native Node.js build instead
+*.docker-compose
+docker-compose.yml.backup
+Dockerfile
+

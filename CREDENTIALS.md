@@ -3,13 +3,20 @@
 ## 🌐 Application URLs
 
 ### Live Application
-- **Frontend (Main App)**: `[Your Render URL will go here]`
-- **Backend API**: `[Your Backend URL will go here]`
+- **Frontend (Main App)**: `[REPLACE WITH YOUR RENDER FRONTEND URL]`
+- **Backend API**: `[REPLACE WITH YOUR RENDER BACKEND URL]`
 - **GitHub Repository**: https://github.com/avinashp07/status-page-app
 
 ### Public Status Pages
-- **Generic Home**: `https://your-frontend-url/`
-- **Plivo Status Page**: `https://your-frontend-url/plivo-inc`
+- **Generic Home**: `[REPLACE WITH YOUR FRONTEND URL]/`
+- **Plivo Status Page**: `[REPLACE WITH YOUR FRONTEND URL]/plivo-inc`
+
+### Example URLs (Replace with yours):
+```
+Frontend: https://status-page-frontend.onrender.com
+Backend: https://status-page-backend.onrender.com
+Status Page: https://status-page-frontend.onrender.com/plivo-inc
+```
 
 ---
 
